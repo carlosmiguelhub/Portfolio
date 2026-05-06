@@ -81,7 +81,7 @@ export default function ProjectDetailsPage() {
             Back to Projects
           </Link>
 
-          <div className="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
+          <div className="grid gap-10 xl:grid-cols-[0.85fr_1.15fr] xl:items-start">
             <div>
               <p className="mb-3 text-xs font-bold uppercase tracking-[0.35em] text-indigo-300">
                 {project.category} / {project.year}
@@ -133,19 +133,19 @@ export default function ProjectDetailsPage() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-[#111723] p-5 shadow-2xl shadow-black/30">
-              <div className="relative h-[420px] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-500/20 via-black to-purple-500/20">
-                {project.coverImage ? (
+<div className="rounded-[2rem] border border-white/10 bg-[#111723]/90 p-4 shadow-2xl shadow-black/30">
+<div className="relative h-[300px] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-500/20 via-black to-purple-500/20 sm:h-[340px] xl:h-[380px]">                {project.coverImage ? (
                   <>
                     <Image
-                      src={project.coverImage}
-                      alt={project.title}
-                      fill
-                      priority
-                      className="object-cover"
+                    src={project.coverImage}
+                    alt={project.title}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 58vw"
+                    className="object-contain p-4"
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
 
                     <div className="absolute bottom-6 left-6 right-6">
                       <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-indigo-200">
@@ -179,8 +179,8 @@ export default function ProjectDetailsPage() {
             </div>
           </div>
 
-          <div className="mt-16 grid gap-7 lg:grid-cols-[0.9fr_1.1fr]">
-            <section className="rounded-[2rem] border border-white/10 bg-[#111723] p-7">
+          {project.overview && (
+            <section className="mt-16 rounded-[2rem] border border-white/10 bg-[#111723]/90 p-7 shadow-xl shadow-black/20">
               <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-indigo-300">
                 Overview
               </p>
@@ -191,32 +191,7 @@ export default function ProjectDetailsPage() {
                 {project.overview}
               </p>
             </section>
-
-            <section className="rounded-[2rem] border border-white/10 bg-[#111723] p-7">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-indigo-300">
-                Features
-              </p>
-
-              <h2 className="mb-5 text-3xl font-black">Core Functions</h2>
-
-              <div className="space-y-3">
-                {project.features?.map((feature, index) => (
-                  <div
-                    key={feature}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <span className="text-sm font-bold text-white/70">
-                      {feature}
-                    </span>
-
-                    <span className="rounded-full bg-indigo-300/10 px-3 py-1 text-xs font-black text-indigo-200">
-                      0{index + 1}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
+          )}
         </div>
       </section>
 

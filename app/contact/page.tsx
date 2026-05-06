@@ -1,8 +1,38 @@
+"use client";
+
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Mail, MapPin, MessageSquare, Send } from "lucide-react";
+import emailjs from "@emailjs/browser";
 
 export default function ContactPage() {
+  const [isSending, setIsSending] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSending(true);
+
+    const form = event.currentTarget;
+
+    try {
+      await emailjs.sendForm(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        form,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      );
+
+      alert("Message sent successfully!");
+      form.reset();
+    } catch (error) {
+      console.error("EmailJS error:", error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#0b0b0f] text-white">
       <Navbar />
@@ -20,13 +50,13 @@ export default function ContactPage() {
             <h1 className="text-5xl font-black leading-tight tracking-tight md:text-7xl">
               Let&apos;s Build Something{" "}
               <span className="text-indigo-300 drop-shadow-[0_0_18px_rgba(165,180,252,0.45)]">
-                Massive.
+                Together.
               </span>
             </h1>
 
             <p className="mt-6 max-w-xl text-base leading-8 text-white/60 md:text-lg">
               Have a project, system, portfolio, admin dashboard, or web idea?
-              Send a message and let&apos;s turn it into a clean digital product.
+              Send a message and I&apos;ll get back to you.
             </p>
 
             <div className="mt-10 space-y-4">
@@ -36,7 +66,9 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">Email</p>
-                  <p className="text-sm text-white/50">your-email@example.com</p>
+                  <p className="text-sm text-white/50">
+                    your-email@example.com
+                  </p>
                 </div>
               </div>
 
@@ -56,13 +88,18 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">Response</p>
-                  <p className="text-sm text-white/50">Usually within 24 hours</p>
+                  <p className="text-sm text-white/50">
+                    Usually within 24 hours
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <form className="rounded-[2rem] border border-white/10 bg-[#111723] p-6 shadow-2xl shadow-black/30 md:p-8">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-[2rem] border border-white/10 bg-[#111723] p-6 shadow-2xl shadow-black/30 md:p-8"
+          >
             <div className="mb-8">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-indigo-300">
                 Start a Conversation
@@ -76,7 +113,9 @@ export default function ContactPage() {
                   Name
                 </label>
                 <input
+                  name="from_name"
                   type="text"
+                  required
                   placeholder="Your name"
                   className="w-full rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-indigo-300/60"
                 />
@@ -87,7 +126,9 @@ export default function ContactPage() {
                   Email
                 </label>
                 <input
+                  name="from_email"
                   type="email"
+                  required
                   placeholder="your@email.com"
                   className="w-full rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-indigo-300/60"
                 />
@@ -97,7 +138,11 @@ export default function ContactPage() {
                 <label className="mb-2 block text-sm font-bold text-white/70">
                   Project Type
                 </label>
-                <select className="w-full rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-white outline-none transition focus:border-indigo-300/60">
+                <select
+                  name="project_type"
+                  required
+                  className="w-full rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-white outline-none transition focus:border-indigo-300/60"
+                >
                   <option>Portfolio Website</option>
                   <option>Admin Dashboard</option>
                   <option>Web Application</option>
@@ -111,7 +156,9 @@ export default function ContactPage() {
                   Message
                 </label>
                 <textarea
+                  name="message"
                   rows={6}
+                  required
                   placeholder="Tell me about your project..."
                   className="w-full resize-none rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-indigo-300/60"
                 />
@@ -119,9 +166,10 @@ export default function ContactPage() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex items-center justify-center gap-3 rounded-2xl bg-indigo-300 px-6 py-4 text-sm font-black text-[#08080c] transition hover:bg-white"
+                disabled={isSending}
+                className="mt-2 inline-flex items-center justify-center gap-3 rounded-2xl bg-indigo-300 px-6 py-4 text-sm font-black text-[#08080c] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Send Message
+                {isSending ? "Sending..." : "Send Message"}
                 <Send size={18} />
               </button>
             </div>

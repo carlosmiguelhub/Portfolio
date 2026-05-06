@@ -18,11 +18,28 @@ type ProjectFormProps = {
   initialData?: FirebaseProject;
 };
 
+
+const createEmptyForm = (): FirebaseProject => ({
+  title: "",
+  slug: "",
+  category: "",
+  year:"2026",
+  description: "",
+  overview: "",
+  tech: [],
+  features: [],
+  liveUrl: "",
+  githubUrl: "",
+  coverImage: "",
+  featured: false,
+  status: "draft",
+});
+
 const emptyForm: FirebaseProject = {
   title: "",
   slug: "",
   category: "",
-  year: new Date().getFullYear().toString(),
+  year: "2026",
   description: "",
   overview: "",
   tech: [],
@@ -58,6 +75,7 @@ export default function ProjectForm({
   const [featureInput, setFeatureInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [form, setForm] = useState<FirebaseProject>(() => createEmptyForm());
 
   function updateField<K extends keyof FirebaseProject>(
     field: K,
