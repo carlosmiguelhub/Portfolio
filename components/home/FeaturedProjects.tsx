@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 
 type Project = {
@@ -14,6 +21,7 @@ type Project = {
   year?: string | number;
   description?: string;
   tech?: string[];
+  status?: "draft" | "published";
 
   imageUrl?: string;
   image?: string;
@@ -28,6 +36,7 @@ type Project = {
   githubUrl?: string;
   url?: string;
   link?: string;
+  slug?: string;
 };
 
 export default function FeaturedProjects() {
@@ -39,23 +48,21 @@ export default function FeaturedProjects() {
       try {
         const projectsQuery = query(
           collection(db, "projects"),
-          orderBy("year", "desc")
+          where("status", "==", "published"),
+          orderBy("year", "desc"),
+          limit(3)
         );
 
         const snapshot = await getDocs(projectsQuery);
 
-        const projectData = snapshot.docs.map((doc) => {
-          const data = doc.data();
-
-          return {
-            id: doc.id,
-            ...data,
-          };
-        }) as Project[];
+        const projectData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Project[];
 
         setProjects(projectData);
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        console.error("Error fetching featured projects:", error);
       } finally {
         setLoading(false);
       }
@@ -66,7 +73,6 @@ export default function FeaturedProjects() {
 
   return (
     <section className="relative overflow-hidden border-t border-white/10 bg-[#0b0b0f] px-6 py-24 text-white">
-      {/* Animated background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 animate-grid-move bg-[linear-gradient(rgba(165,180,252,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(165,180,252,0.07)_1px,transparent_1px)] bg-[size:60px_60px] opacity-50" />
 
@@ -95,6 +101,11 @@ export default function FeaturedProjects() {
               </span>
             </h2>
           </div>
+
+          <p className="max-w-xl text-sm leading-7 text-white/60 md:text-base">
+            A collection of projects I have built, including web systems,
+            dashboards, portfolio builds, and database-connected applications.
+          </p>
         </div>
 
         {loading ? (
@@ -108,26 +119,28 @@ export default function FeaturedProjects() {
           </div>
         ) : projects.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center backdrop-blur">
-            <p className="text-white/60">No projects found yet.</p>
+            <p className="text-white/60">No published projects found.</p>
           </div>
         ) : (
           <div className="grid gap-7 md:grid-cols-3">
             {projects.map((project) => {
               const projectImage =
+                project.coverImage ||
                 project.imageUrl ||
                 project.image ||
                 project.imageURL ||
                 project.image_url ||
                 project.thumbnail ||
-                project.coverImage ||
                 project.projectImage;
 
               const projectLink =
-                project.projectUrl ||
-                project.liveUrl ||
-                project.githubUrl ||
-                project.url ||
-                project.link;
+                project.slug
+                  ? `/projects/${project.slug}`
+                  : project.projectUrl ||
+                    project.liveUrl ||
+                    project.githubUrl ||
+                    project.url ||
+                    project.link;
 
               const isExternalLink = projectLink?.startsWith("http");
 
@@ -143,7 +156,7 @@ export default function FeaturedProjects() {
                         alt={project.title || "Project image"}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover transition duration-500 group-hover:scale-105"
+                        className="object-cover object-top transition duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center bg-gradient-to-br from-indigo-500/20 via-black to-purple-500/20">
